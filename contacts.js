@@ -29,6 +29,7 @@ function removeContact(contactId) {
         console.log(data);
       }
     );
+    console.log(contacts);
   });
 }
 
@@ -38,9 +39,8 @@ function addContact(name, email, phone) {
       return console.log(err);
     }
     const contacts = JSON.parse(data);
-    console.log(contacts);
     const contact = {
-      id: contacts.length + 1,
+      id: contacts.length + 2,
       name,
       email,
       phone,
@@ -56,6 +56,7 @@ function addContact(name, email, phone) {
         console.log(data);
       }
     );
+    console.log(contacts);
   });
 }
 
