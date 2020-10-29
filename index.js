@@ -1,14 +1,40 @@
 const http = require("http");
 
-const hostname = "127.0.0.1";
-const port = 3000;
+const contacts = require("./contacts");
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/plain");
-  res.end("Hello World");
-});
+// contacts.listContacts();
+// contacts.getContactById(3);
+// contacts.removeContact(3);
+// contacts.addContact("Mango", "mango@gmail.com", "322-22-22");
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+const argv = require("yargs").argv;
+
+// TODO: рефакторить
+function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      contacts.listContacts();
+
+      break;
+
+    case "get":
+      // ... id
+      contacts.getContactById(id);
+      break;
+
+    case "add":
+      // ... name email phone
+      contacts.addContact(name, email, phone);
+      break;
+
+    case "remove":
+      // ... id
+      contacts.removeContact(id);
+      break;
+
+    default:
+      console.warn("\x1B[31m Unknown action type!");
+  }
+}
+
+invokeAction(argv);
