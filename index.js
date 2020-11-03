@@ -1,40 +1,64 @@
-const http = require("http");
-
+const express = require("express");
+const app = express();
+const cors = require("cors");
+const morgan = require("morgan");
 const contacts = require("./contacts");
+const port = 3000;
 
-// contacts.listContacts();
-// contacts.getContactById(3);
-// contacts.removeContact(3);
-// contacts.addContact("Mango", "mango@gmail.com", "322-22-22");
+app.use(cors());
+app.use(morgan("combined"));
 
-const argv = require("yargs").argv;
+app.get("/api/contacts", cors(), async (request, response) => {
+  const contactsList = await contacts.listContacts();
+  response.send(contactsList);
+});
 
-// TODO: рефакторить
-function invokeAction({ action, id, name, email, phone }) {
-  switch (action) {
-    case "list":
-      contacts.listContacts();
-
-      break;
-
-    case "get":
-      // ... id
-      contacts.getContactById(id);
-      break;
-
-    case "add":
-      // ... name email phone
-      contacts.addContact(name, email, phone);
-      break;
-
-    case "remove":
-      // ... id
-      contacts.removeContact(id);
-      break;
-
-    default:
-      console.warn("\x1B[31m Unknown action type!");
+app.get("/api/contacts/:contactId", cors(), async (request, response) => {
+  const contactsList = await contacts.getContactById(request.params.contactId);
+  if (contactsList) {
+    response.send(contactsList);
+  } else {
+    response.status(404).json({ message: "Not found" });
   }
-}
+});
 
-invokeAction(argv);
+app.post("/api/contacts", cors(), async (request, response) => {
+  if (request.query.name && request.query.email && request.query.phone) {
+    const contactsList = await contacts.addContact(request.query);
+    response.status(201).send(contactsList);
+  } else {
+    response.status(400).json({ message: "missing required name field" });
+  }
+});
+
+app.delete("/api/contacts/:contactId", cors(), async (request, response) => {
+  const contactsList = await contacts.removeContact(request.params.contactId);
+  if (!contactsList) {
+    response.send({ message: "contact deleted" });
+  } else {
+    response.status(404).json({ message: "Not found" });
+  }
+});
+
+app.patch("/api/contacts/:contactId", cors(), async (request, response) => {
+  if (request.query.name && request.query.email && request.query.phone) {
+    const contactsList = await contacts.updateContact(
+      request.params.contactId,
+      request.query
+    );
+    if (contactsList) {
+      response.send(contactsList);
+    } else {
+      response.status(404).json({ message: "Not found" });
+    }
+  } else {
+    response.status(400).json({ message: "missing fields" });
+  }
+});
+
+app.listen(port, (err) => {
+  if (err) {
+    return console.log("something bad happened", err);
+  }
+  console.log(`server is listening on ${port}`);
+});
