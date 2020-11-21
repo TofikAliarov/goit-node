@@ -35,7 +35,11 @@ async function getContactById(contactId) {
   const client = await MongoClient.connect(process.env.MONGODB_URL);
   const db = client.db(process.env.MONGODB_NAME);
   const usersCollection = db.collection("contacts");
+  console.log(contactId);
   try {
+    console.log(
+      await usersCollection.find({ _id: ObjectId(contactId) }).toArray()
+    );
     return await usersCollection.find({ _id: ObjectId(contactId) }).toArray();
   } catch {
     console.error("Error occured while reading directory!", err);
@@ -73,10 +77,29 @@ async function removeContact(contactId) {
   }
 }
 
+currentUser = async (req, res, next) => {
+  const client = await MongoClient.connect(process.env.MONGODB_URL);
+  const db = client.db(process.env.MONGODB_NAME);
+  const usersCollection = db.collection("contacts");
+  const token = req.headers.authorization.slice(7);
+  const user = await usersCollection.findOne({ token: token });
+  console.log(user);
+  const userShow = {
+    email: user.email,
+    subscription: user.subscription,
+  };
+  if (!user) {
+    return res.status(401).send("Not authorized");
+  }
+
+  return res.status(200).send(userShow);
+};
+
 module.exports = {
   listContacts,
   getContactById,
   removeContact,
   addContact,
   updateContact,
+  currentUser,
 };
