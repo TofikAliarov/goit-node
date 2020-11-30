@@ -20,6 +20,7 @@ register = async (req, res, next) => {
     email,
     subscription: "free",
     password: passwordHash,
+    avatarURL: "http://localhost:3000/images/Avatar-default.png",
     token: " ",
   });
   res.status(201).send(newUser);
@@ -55,12 +56,12 @@ logout = async (req, res, next) => {
   const client = await MongoClient.connect(process.env.MONGODB_URL);
   const db = client.db(process.env.MONGODB_NAME);
   const usersCollection = db.collection("contacts");
-  const token = req.headers.authorization.slice(7);
   const newToken = " ";
 
-  if (!token) {
+  if (!req.headers.authorization) {
     return res.status(401).send("Not authorized");
   }
+  const token = req.headers.authorization.replace("Bearer ", "");
 
   await usersCollection.updateOne(
     { token: token },
