@@ -17,8 +17,6 @@ app.use("/auth", authRouter);
 app.use("/users", currentRouter);
 app.use("/users", imageRouter);
 
-app.use("/static", express.static(__dirname + "/public"));
-
 app.listen(port, (err) => {
   if (err) {
     return console.log("something bad happened", err);
