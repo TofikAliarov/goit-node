@@ -11,4 +11,6 @@ router.post("/login", validate(contactSchema), controller.login);
 
 router.post("/logout", controller.logout);
 
+router.get("/verify/:verificationToken", controller.verify);
+
 exports.authRouter = router;
